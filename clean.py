@@ -1,30 +1,16 @@
 import pandas as pd
-import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument('contact_info_file', help='Contact info file(CSV)')
-parser.add_argument('other_info_file', help='Other info file(CSV)')
-parser.add_argument('output_file', help='Cleaned data file(CSV)')
+df1= pd.read_csv('respondent_contact.csv')
+df2= pd.read_csv('respondent_other.csv')
 
-args = parser.parse_args()
+#merge
+merge_file = pd.merge (df1, df2,
+                        left_on='respondent_id',right_on='id',
+                        how= 'outer')
 
-
-# (1)
-contact_df = pd.read_csv(args.contact_info_file)
-other_df = pd.read_csv(args.other_info_file)
-merged_df = pd.merge(contact_df, other_df, left_on='respondent_id', right_on='id').drop('id', axis=1)
-
-# (2)
-merged_df.dropna(inplace=True)
-
-# (3)
-merged_df = merged_df[~merged_df['job'].str.contains('insurance|Insurance')]
-
-# (4)
-merged_df.to_csv(args.output_file, index=False)
-
-# Step 3
-print(merged_df)
-print("Output file shape:")
-print(merged_df.shape)
-
+#drop
+df3=merge_file.drop (['id'],axis=1)
+df4=merge_file.dropna(axis=0)
+output_fite=df4[df4["job"].str.contains("insurance | Insurance")==False]
+#export
+output_fite.to_csv('output_file.csv',index=False)
